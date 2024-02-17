@@ -1,7 +1,7 @@
 package stack
 
 func New[T any]() Stack[T] {
-	s := make([]T, 0, 16)
+	s := make([]T, 16, 16)
 	return Stack[T]{a: s, t: -1, Len: 0}
 }
 
@@ -16,12 +16,11 @@ func (s *Stack[T]) Push(item T) {
 	s.Len++
 
 	c := cap(s.a)
-	n := c
 
 	if s.t >= c {
 		c *= 2
 		a := s.a
-		s.a = make([]T, n, c)
+		s.a = make([]T, c, c)
 		copy(a, s.a)
 	}
 	s.a[s.t] = item
