@@ -1,30 +1,51 @@
 package stack
 
-import "fmt"
+func New[T any]() Stack[T] {
+	s := make([]T, 0, 16)
+	return Stack[T]{a: s, t: -1, Len: 0}
+}
 
 type Stack[T any] struct {
-	a []T
+	a   []T
+	t   int
+	Len int
 }
 
 func (s *Stack[T]) Push(item T) {
-	s.a = append(s.a, item)
+	s.t++
+	s.Len++
+
+	c := cap(s.a)
+	n := c
+
+	if s.t >= c {
+		c *= 2
+		a := s.a
+		s.a = make([]T, n, c)
+		copy(a, s.a)
+	}
+	s.a[s.t] = item
 }
 
 func (s *Stack[T]) Empty() bool {
-	return len(s.a) == 0
+	return s.t < 0
 }
 
-func (s *Stack[T]) Len() int {
-	return len(s.a)
-}
-
-func (s *Stack[T]) Pop() T {
-	if len(s.a) == 0 {
-		panic(fmt.Sprintf("stack is empty: %#v", *s))
+func (s *Stack[T]) Pop() Option[T] {
+	if s.t < 0 {
+		return None[T]{}
 	}
 
-	item := s.a[len(s.a)-1]
-	s.a = s.a[:len(s.a)-1]
+	item := s.a[s.t]
+	s.t--
 
-	return item
+	return Some[T]{item: item}
+}
+
+func (s *Stack[T]) Peek() Option[T] {
+	if s.t < 0 {
+		return None[T]{}
+	}
+
+	return Some[T]{item: s.a[s.t]}
 }
